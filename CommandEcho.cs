@@ -21,9 +21,7 @@ namespace MyOpenModPlugin
 
         protected async override Task OnExecuteAsync()
         {
-
             await PrintAsync("Item is here!");
-
         }
     }
 }
