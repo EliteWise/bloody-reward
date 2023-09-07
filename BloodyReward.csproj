@@ -4,7 +4,7 @@
     <TargetFramework>net461</TargetFramework>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>openmod openmod-plugin unturned</PackageTags>
-    <RootNamespace>BloodyReward</RootNamespace>
+    <RootNamespace>ImmersiveBleeding</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateNugetPackage>true</GenerateNugetPackage>
     <Product>FirstPlugin</Product>
@@ -15,7 +15,7 @@
     <InformationalVersion>0.1.0</InformationalVersion>
     <PackageVersion>0.1.0</PackageVersion>
     <LangVersion>8.0</LangVersion>
-    <PackageId>BloodyReward</PackageId>
+    <PackageId>ImmersiveBleeding</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ using OpenMod.API.Plugins;
 
 // For more, visit https://openmod.github.io/openmod-docs/devdoc/guides/getting-started.html
 
-[assembly: PluginMetadata("BloodyReward", DisplayName = "BloodyReward")]
+[assembly: PluginMetadata("ImmersiveBleeding", DisplayName = "ImmersiveBleeding")]
 namespace MyOpenModPlugin
 {
     public class MyOpenModPlugin : OpenModUnturnedPlugin
