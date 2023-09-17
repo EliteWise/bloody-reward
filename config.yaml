@@ -1,2 +1,5 @@
-# See https://openmod.github.io/openmod-docs/devdoc/concepts/configuration.html
-# You can delete this file if you do not need a configuration
+hallucination: true
+blood_effect: true
+remaining_lifetime_message: true
+attract_zombies: true
+attraction_range: 40

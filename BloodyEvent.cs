@@ -29,12 +29,24 @@ using Steamworks;
 using Random = System.Random;
 using OpenMod.Unturned.Players.Useables.Events;
 using OpenMod.Unturned.Players.Inventory.Events;
+using OpenMod.Unturned.Locations;
+using Vector3 = UnityEngine.Vector3;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace MyOpenModPlugin
 {
     public class BloodyEvent : IEventListener<UnturnedZombieDyingEvent>, IEventListener<UnturnedPlayerHealthUpdatedEvent>, 
-        IEventListener<UnturnedPlayerSpawnedEvent>, IEventListener<UnturnedPlayerDeathEvent>
+        IEventListener<UnturnedPlayerDeathEvent>
     {
+        private readonly IConfiguration m_Configuration;
+
+        public BloodyEvent(
+            IConfiguration configuration)
+        {
+            m_Configuration = configuration;
+        }
 
         private Dictionary<EZombieSpeciality, ushort> zombieItemIdBySpeciality = new Dictionary<EZombieSpeciality, ushort>
         {
@@ -85,33 +97,55 @@ namespace MyOpenModPlugin
         {
             UnturnedPlayer player = e.Player;
 
-            if(player.Player.life.isBleeding)
+            var hallucinationEnabled = m_Configuration.GetSection("hallucination").Get<bool>();
+            var bloodEffectEnabled = m_Configuration.GetSection("blood_effect").Get<bool>();
+            var messageEnabled = m_Configuration.GetSection("remaining_lifetime_message").Get<bool>();
+            var attracingZombiesEnabled = m_Configuration.GetSection("attract_zombies").Get<bool>();
+
+            if (player.Player.life.isBleeding)
             {
                 bleedingPlayers.Add(player);
-                player.PrintMessageAsync($"Time left to live: {player.Health} seconds.");
+                if(messageEnabled) player.PrintMessageAsync($"Time left to live: {player.Health} seconds.");
 
-                TriggerEffectParameters tep = new TriggerEffectParameters(guid);
-                tep.position = player.Player.transform.position;
-                EffectManager.triggerEffect(tep);
+                if(bloodEffectEnabled)
+                {
+                    TriggerEffectParameters tep = new TriggerEffectParameters(guid);
+                    tep.position = player.Player.transform.position;
+                    EffectManager.triggerEffect(tep);
+                }
 
-                player.Player.life.serverModifyHallucination(hallucinateDelta += 1);
+                if(hallucinationEnabled) player.Player.life.serverModifyHallucination(hallucinateDelta += 1);
+
+                // Attract Zombies
+                if (player.Player.transform != null && attracingZombiesEnabled)
+                {
+                    Vector3 playerPosition = player.Player.transform.localPosition;
+                    Collider[] hitColliders = Physics.OverlapSphere(playerPosition, m_Configuration.GetSection("attraction_range").Get<int>());
+                    foreach (var hitCollider in hitColliders)
+                    {
+                        Zombie zombie = hitCollider.GetComponent<Zombie>();
+                        if (zombie != null)
+                        {
+                            zombie.alert(player.Player);
+                           /*
+                            * To teleport zombies at the player location:
+                            * ZombieManager.sendZombieAlive(zombie, 1, 1, 1, 1, 1, 1, playerPosition, 1);
+                            */
+                        }
+                    }
+                }
 
                 if (medicalDropRateByPlayer.TryGetValue(player.SteamId, out int existingRate))
                 {
                     int newRate = ++existingRate;
                     medicalDropRateByPlayer[player.SteamId] = newRate;
-                } else
+                }
+                else
                 {
                     medicalDropRateByPlayer.Add(player.SteamId, 10);
                 }
-            }   
-            return Task.CompletedTask;
-        }
 
-        public Task HandleEventAsync(object? sender, UnturnedPlayerSpawnedEvent e)
-        {
-            e.Player.Player.inventory.tryAddItem(new Item(16, true), true);
-            e.Player.Player.movement.sendPluginSpeedMultiplier(3);
+            }   
             return Task.CompletedTask;
         }
 
@@ -128,6 +162,15 @@ namespace MyOpenModPlugin
             return Task.CompletedTask;
           
         }
+
+        /* Simplify testing
+         * public Task HandleEventAsync(object? sender, UnturnedPlayerSpawnedEvent e)
+        {
+            e.Player.Player.inventory.tryAddItem(new Item(16, true), true);
+            e.Player.Player.movement.sendPluginSpeedMultiplier(3);
+
+            return Task.CompletedTask;
+        }*/
 
     }
 }

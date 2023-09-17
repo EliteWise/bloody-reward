@@ -31,8 +31,7 @@ namespace MyOpenModPlugin
         protected override async UniTask OnLoadAsync()
         {
             // await UniTask.SwitchToMainThread(); uncomment if you have to access Unturned or UnityEngine APIs
-            m_Logger.LogInformation("Hello World!");
-
+            m_Logger.LogInformation("Immersive Bleeding is loaded! - By EliteWise");
             // await UniTask.SwitchToThreadPool(); // you can switch back to a different thread
         }
 
